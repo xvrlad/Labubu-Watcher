@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-	// Example: Your Shopify collection URL
 	url := os.Getenv("POP_MART_PRODUCTS_URL");
 
 	// 1. Fetch products.json
