@@ -9,6 +9,8 @@ import (
 	"net/smtp"
 	"os"
 	"strings"
+
+	"github.com/xvrlad/labubu-watcher/src/app/models"
 )
 
 func main() {
@@ -27,7 +29,7 @@ func main() {
 	}
 
 	// 2. Parse JSON
-	var data Products
+	var data models.Products
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		log.Fatal("Error parsing JSON:", err)

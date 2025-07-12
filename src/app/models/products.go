@@ -1,4 +1,4 @@
-package main
+package models
 
 type Products struct {
 	Products []Product `json:"products"`
