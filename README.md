@@ -1,2 +1,2 @@
 # Labubu Watcher 👁👄👁
-A bot that keeps track of Labubu restocks or new releases.
+Aim: To make a bot that keeps track of Labubu restocks or new releases. Also for me to practice Go.
