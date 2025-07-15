@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -32,25 +31,32 @@ func main() {
 	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	var productNames []string
-
+	var inStockProducts, comingSoonProducts []string
+	
 	log.Println("Navigating to:", url)
-
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
-		chromedp.WaitVisible(`div.index_productGrid__zN2jL`),
+		chromedp.WaitVisible(`.index_productItemContainer__rDwtr .index_tag__E64FE span`),
 		chromedp.Evaluate(`(() => {
 			const products = Array.from(document.querySelectorAll('.index_productItemContainer__rDwtr'));
 			const inStock = [];
+			const comingSoon = [];
 			products.forEach(item => {
 				const nameEl = item.querySelector('.index_itemTitle__WaT6_');
 				const tagEl = item.querySelector('.index_tag__E64FE span');
 				const name = nameEl ? nameEl.innerText.trim() : 'Unnamed';
-				const outOfStock = tagEl && tagEl.innerText.includes('OUT OF STOCK');
-				if (!outOfStock) inStock.push(name);
+				const tagText = tagEl ? tagEl.innerText.trim().toUpperCase() : '';
+				if (tagText.includes('COMING SOON')) {
+					comingSoon.push(name);
+				} else if (!tagText.includes('OUT OF STOCK')) {
+					inStock.push(name);
+				}
 			});
-			return inStock;
-		})()`, &productNames),
+			return { inStock, comingSoon };
+		})()`, &struct {
+			InStock    *[]string `json:"inStock"`
+			ComingSoon *[]string `json:"comingSoon"`
+		}{&inStockProducts, &comingSoonProducts}),
 	)
 
 	if err != nil {
@@ -58,7 +64,12 @@ func main() {
 	}
 
 	fmt.Println("\n✅ In-stock products:")
-	for _, name := range productNames {
-		fmt.Println("-", strings.TrimSpace(name))
+	for _, name := range inStockProducts {
+		fmt.Println("-", name)
+	}
+
+	fmt.Println("\n🕒 Coming soon products:")
+	for _, name := range comingSoonProducts {
+		fmt.Println("-", name)
 	}
 }
